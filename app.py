@@ -2,6 +2,7 @@ from fastapi import FastAPI
 import mysql.connector
 
 app = FastAPI()
+CORS(app, resources={r"/*": {"origins": "*"}})  # 全エンドポイントでCORSを許可
 
 # データベース接続設定
 db_config = {
