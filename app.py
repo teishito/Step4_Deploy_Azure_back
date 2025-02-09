@@ -75,8 +75,3 @@ async def purchase(items: list[dict]):
         return {"error": f"Database error: {e}"}
     except Exception as e:
         return {"error": str(e)}
-
-if __name__ == "__main__":
-    port = int(os.getenv("PORT", 8080))  # 環境変数 PORT を確認
-    import uvicorn
-    uvicorn.run(app, host="0.0.0.0", port=port)
