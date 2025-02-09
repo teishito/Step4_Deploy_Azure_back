@@ -20,7 +20,7 @@ db_config = {
     "user": os.getenv("DB_USER", "root"),
     "password": os.getenv("DB_PASSWORD", ""),
     "database": os.getenv("DB_NAME", "test_db"),
-    "ssl_ca": "DigiCertGlobalRootCA.crt.pem",  # 証明書ファイルのパス（相対パス）
+    "ssl_ca": "/home/site/wwwroot/DigiCertGlobalRootCA.crt.pem"
 }
 
 # 商品検索API
@@ -77,6 +77,6 @@ async def purchase(items: list[dict]):
         return {"error": str(e)}
 
 if __name__ == "__main__":
-    port = int(os.getenv("PORT", 8000))  # デフォルトのポート番号を8000に設定
+    port = int(os.getenv("PORT", 8080))  # 環境変数 PORT を確認
     import uvicorn
     uvicorn.run(app, host="0.0.0.0", port=port)
