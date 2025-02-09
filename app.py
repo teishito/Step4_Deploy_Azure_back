@@ -75,3 +75,7 @@ async def purchase(items: list[dict]):
         return {"error": f"Database error: {e}"}
     except Exception as e:
         return {"error": str(e)}
+
+if __name__ == '__main__':
+    port = int(os.environ.get('PORT', 8000))  # 環境変数PORTが設定されていない場合、デフォルトで8000を使用
+    app.run(host='0.0.0.0', port=port)
