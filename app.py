@@ -1,5 +1,7 @@
 from fastapi import FastAPI
+from flask_cors import CORS
 import mysql.connector
+import os
 
 app = FastAPI()
 CORS(app, resources={r"/*": {"origins": "*"}})  # 全エンドポイントでCORSを許可
