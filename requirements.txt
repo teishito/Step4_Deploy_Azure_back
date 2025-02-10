@@ -4,3 +4,4 @@ pymysql
 python-dotenv
 starlette
 pydantic
+flask_cors
