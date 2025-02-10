@@ -9,10 +9,10 @@ from starlette.staticfiles import StaticFiles
 # FastAPIアプリの初期化
 app = FastAPI()
 
-# CORS設定
+# ミドルウェア CORS設定
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # 全てのオリジンを許可
+    allow_origins=["https://tech0-gen8-step4-pos-app-71.azurewebsites.net"],  # 許可するオリジンを指定
     allow_credentials=True,
     allow_methods=["*"],  # 全てのHTTPメソッドを許可
     allow_headers=["*"],  # 全てのヘッダーを許可
@@ -27,7 +27,7 @@ DB_PASSWORD = urllib.parse.quote_plus(os.getenv('DB_PASSWORD'))  # URLエンコ�
 DB_HOST = os.getenv('DB_HOST')
 DB_PORT = int(os.getenv('DB_PORT', '3306'))
 DB_NAME = os.getenv('DB_NAME')
-SSL_CERT = "DigiCertGlobalRootCA.crt.pem"  # SSL証明書パス
+SSL_CERT = "/home/site/certs/DigiCertGlobalRootCA.crt.pem"  # SSL証明書パス
 
 # 環境変数が不足している場合のエラーチェック
 if not all([DB_USER, DB_PASSWORD, DB_HOST, DB_PORT, DB_NAME]):
