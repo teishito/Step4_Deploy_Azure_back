@@ -41,8 +41,10 @@ async def get_item(code: str):
         if product:
             return product
         return {"message": "商品がマスタ未登録です"}
+    except mysql.connector.Error as db_err:
+        raise HTTPException(status_code=500, detail=f"Database error: {str(db_err)}")
     except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+        raise HTTPException(status_code=500, detail=f"Unexpected error: {str(e)}")
 
 # 購入処理API
 @app.post("/purchase")
@@ -70,3 +72,7 @@ async def purchase(items: list[dict]):
         return {"message": "購入完了", "total": total}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+
+if __name__ == "__main__":
+    import uvicorn
+    uvicorn.run(app, host="0.0.0.0", port=int(os.getenv("PORT", 8080)))
