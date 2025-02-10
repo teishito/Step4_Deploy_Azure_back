@@ -27,7 +27,7 @@ DB_PASSWORD = urllib.parse.quote_plus(os.getenv('DB_PASSWORD'))  # URLエンコ�
 DB_HOST = os.getenv('DB_HOST')
 DB_PORT = int(os.getenv('DB_PORT', '3306'))
 DB_NAME = os.getenv('DB_NAME')
-SSL_CERT = "/home/site/certs/DigiCertGlobalRootCA.crt.pem"  # SSL証明書パス
+SSL_CERT = "DigiCertGlobalRootCA.crt.pem"  # SSL証明書パス
 
 # 環境変数が不足している場合のエラーチェック
 if not all([DB_USER, DB_PASSWORD, DB_HOST, DB_PORT, DB_NAME]):
