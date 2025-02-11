@@ -12,16 +12,22 @@ from sqlalchemy.orm import sessionmaker
 # =======================
 DB_HOST = os.getenv("DB_HOST")
 DB_USER = os.getenv("DB_USER")
-DB_PASSWORD = urllib.parse.quote_plus(os.getenv("DB_PASSWORD"))  # パスワードをURLエンコード
+DB_PASSWORD = urllib.parse.quote_plus(os.getenv("DB_PASSWORD"))  # URLエンコード
 DB_NAME = os.getenv("DB_NAME")
-DB_PORT = os.getenv("DB_PORT", "3306")  # デフォルト 3306
+DB_PORT = os.getenv("DB_PORT", "3306")
 PORT = int(os.getenv("PORT", 8080))  # デフォルト 8080
 
-# MySQL接続情報
+# SSL 証明書のパス
+SSL_CERT_PATH = os.path.join(os.path.dirname(__file__), "DigiCertGlobalRootCA.crt.pem")
+
+# MySQL接続情報（SSL 証明書を適用）
 SQLALCHEMY_DATABASE_URL = f"mysql+pymysql://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_NAME}"
 
-# SQLAlchemy セッション作成
-engine = create_engine(SQLALCHEMY_DATABASE_URL, connect_args={"ssl": {"ssl_ca": None}})
+engine = create_engine(
+    SQLALCHEMY_DATABASE_URL,
+    connect_args={"ssl": {"ssl_ca": SSL_CERT_PATH}}  # 👈 SSL 証明書を適用
+)
+
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 Base = declarative_base()
 
