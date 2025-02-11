@@ -1,7 +1,7 @@
 # Docs for the Azure Web Apps Deploy action: https://github.com/Azure/webapps-deploy
 # More GitHub Actions for Azure: https://github.com/Azure/actions
 
-name: Build and deploy Python FastAPI app to Azure Web App - tech0-gen8-step4-pos-app-72
+name: Build and deploy Node.js app to Azure Web App - tech0-gen8-step4-pos-app-72
 
 on:
   push:
@@ -25,16 +25,14 @@ jobs:
         run: |
           python -m venv venv
           source venv/bin/activate
-
+      
       - name: Install dependencies
-        run: |
-          source venv/bin/activate
-          pip install --no-cache-dir -r requirements.txt
-          pip install gunicorn  # 👈 追加 (念のため)
+        run: pip install -r requirements.txt
+        
+      # Optional: Add step to run tests here (PyTest, Django test suites, etc.)
 
       - name: Zip artifact for deployment
-        run: |
-          zip -r release.zip . -x "*.git*" "*venv*" "*__pycache__*"
+        run: zip release.zip ./* -r
 
       - name: Upload artifact for deployment jobs
         uses: actions/upload-artifact@v4
@@ -50,7 +48,7 @@ jobs:
     environment:
       name: 'Production'
       url: ${{ steps.deploy-to-webapp.outputs.webapp-url }}
-
+    
     steps:
       - name: Download artifact from build job
         uses: actions/download-artifact@v4
@@ -60,15 +58,7 @@ jobs:
       - name: Unzip artifact for deployment
         run: unzip release.zip
 
-      - name: Set Azure Web App environment variables
-        run: |
-          echo "PORT=8000" >> $GITHUB_ENV
-
-      - name: Start Gunicorn Server
-        run: |
-          source venv/bin/activate
-          gunicorn -w 4 -k uvicorn.workers.UvicornWorker app:app --bind 0.0.0.0:8000
-
+      
       - name: 'Deploy to Azure Web App'
         uses: azure/webapps-deploy@v3
         id: deploy-to-webapp
