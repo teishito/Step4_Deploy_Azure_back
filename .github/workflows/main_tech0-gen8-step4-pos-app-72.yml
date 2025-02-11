@@ -30,6 +30,7 @@ jobs:
         run: |
           source venv/bin/activate
           pip install --no-cache-dir -r requirements.txt
+          pip install gunicorn  # 👈 追加 (念のため)
 
       - name: Zip artifact for deployment
         run: |
@@ -64,7 +65,9 @@ jobs:
           echo "PORT=8000" >> $GITHUB_ENV
 
       - name: Start Gunicorn Server
-        run: gunicorn -w 4 -k uvicorn.workers.UvicornWorker app:app --bind 0.0.0.0:8000
+        run: |
+          source venv/bin/activate
+          gunicorn -w 4 -k uvicorn.workers.UvicornWorker app:app --bind 0.0.0.0:8000
 
       - name: 'Deploy to Azure Web App'
         uses: azure/webapps-deploy@v3
