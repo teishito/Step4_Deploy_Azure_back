@@ -3,9 +3,9 @@ import urllib.parse
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
-from sqlalchemy import create_engine, Column, Integer, String, text
+from sqlalchemy import create_engine, Column, Integer, String, ForeignKey
 from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import sessionmaker
+from sqlalchemy.orm import sessionmaker, relationship
 
 # =======================
 # Azure 環境変数から取得
@@ -32,13 +32,25 @@ SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 Base = declarative_base()
 
 # =======================
-# モデル定義（テーブル名を `products` に修正）
+# モデル定義
 # =======================
 class Product(Base):
-    __tablename__ = 'products' 
+    __tablename__ = 'products'
     PRD_ID = Column(Integer, primary_key=True, index=True)
     CODE = Column(String(13), unique=True, index=True)
     NAME = Column(String(50))
+    PRICE = Column(Integer)
+
+class Transaction(Base):
+    __tablename__ = 'transactions'
+    TRANSACTION_ID = Column(Integer, primary_key=True, index=True)
+    TOTAL_PRICE = Column(Integer)
+
+class TransactionDetail(Base):
+    __tablename__ = 'transaction_details'
+    DETAIL_ID = Column(Integer, primary_key=True, index=True)
+    TRANSACTION_ID = Column(Integer, ForeignKey("transactions.TRANSACTION_ID"))
+    PRODUCT_CODE = Column(String(13))
     PRICE = Column(Integer)
 
 # =======================
@@ -58,7 +70,7 @@ app.add_middleware(
 )
 
 # =======================
-# ルートエンドポイントの追加
+# ルートエンドポイント
 # =======================
 @app.get("/")
 async def home():
@@ -87,6 +99,44 @@ async def get_product(code: str):
             }
         raise HTTPException(status_code=404, detail="商品が見つかりません")
     except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+    finally:
+        db.close()
+
+# =======================
+# 購入処理 API
+# =======================
+class PurchaseRequest(BaseModel):
+    cart: list
+
+@app.post("/api/purchase")
+async def purchase(request: PurchaseRequest):
+    db = SessionLocal()
+    try:
+        total = sum(item["price"] for item in request.cart)
+        tax = int(total * 0.1)
+        total_with_tax = total + tax
+
+        # `transactions` テーブルに保存
+        transaction = Transaction(TOTAL_PRICE=total_with_tax)
+        db.add(transaction)
+        db.commit()
+        db.refresh(transaction)
+
+        # `transaction_details` に保存
+        for item in request.cart:
+            detail = TransactionDetail(
+                TRANSACTION_ID=transaction.TRANSACTION_ID,
+                PRODUCT_CODE=item["code"],
+                PRICE=item["price"]
+            )
+            db.add(detail)
+
+        db.commit()
+
+        return {"message": "購入完了", "totalWithTax": total_with_tax}
+    except Exception as e:
+        db.rollback()
         raise HTTPException(status_code=500, detail=str(e))
     finally:
         db.close()
