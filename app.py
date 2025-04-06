@@ -24,6 +24,10 @@ print("✅ 使用モデル:", model)
 class AnalysisRequest(BaseModel):
     prompt: str
 
+@app.route('/api/hello', methods=['GET'])
+def hello_world():
+    return jsonify(message='Hello World')
+
 @app.post("/api/analyze")
 async def analyze(req: AnalysisRequest):
     try:
